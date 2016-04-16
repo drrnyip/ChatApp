@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Untitled Document</title>
+    <!-- Bootstrap -->
+	<link href="css/bootstrap.css" rel="stylesheet" type="text/css">
+    
+    <script src="http://cdn.pubnub.com/pubnub.min.js"></script>
+	<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+
+	<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+	<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+	<!--[if lt IE 9]>
+		  <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+		  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+		<![endif]-->
+  </head>
+  <body style="padding-top: 70px">
+  <input id="sendButton" type="button"></input>
+  <nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container-fluid">
+      <!-- Brand and toggle get grouped for better mobile display -->
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#topFixedNavbar1"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button>
+        <a class="navbar-brand" href="#">Profamily</a></div>
+      <!-- Collect the nav links, forms, and other content for toggling -->
+      <div class="collapse navbar-collapse" id="topFixedNavbar1">
+        <ul class="nav navbar-nav">
+            <ul class="dropdown-menu" role="menu">
+              <li><a href="#">Action</a></li>
+              <li><a href="#">Another action</a></li>
+              <li><a href="#">Something else here</a></li>
+              <li class="divider"></li>
+              <li><a href="#">Separated link</a></li>
+              <li class="divider"></li>
+              <li><a href="#">One more separated link</a></li>
+            </ul>
+          </li>
+        </ul>
+        <form class="navbar-form navbar-left" role="search">
+          
+        </form>
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="#"></a></li>
+          <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Options<span class="caret"></span></a>
+            <ul class="dropdown-menu" role="menu">
+              <li><a href="#">Submit Rude Word Suggestion</a></li>
+              <li class="divider"></li>
+              <li><a href="index.html">Log Out</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+      <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container-fluid -->
+  </nav>
+<div class="container-fluid col-lg-offset-2 col-lg-8 col-xs-11 divPosition">
+  <div class="userList col-lg-2 col-sm-2 col-xs-2 table-bordered" id="userList" ></div>
+  <textarea readonly class="chatHistory col-lg-10 col-sm-10 col-xs-10" id="chatHistory"></textarea>
+  <br>
+  <input class="message col-lg-11 col-md-10 col-sm-10 col-xs-9 input-sm" placeholder="What's on your mind?" id="message" type="text" onKeyDown="if (event.keyCode == 13) filter()"></input>
+  <input class="sendButton col-lg-1 col-md-2 col-sm-2 col-xs-2 bg-primary input-sm" id="sendButton2" type="button" value="Send" onClick="filter()"></input>
+  </div>
+  
+  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) --> 
+	<script src="../../Proto5/js/jquery-1.11.2.min.js"></script>
+
+	<!-- Include all compiled plugins (below), or include individual files as needed --> 
+	<script src="../../Proto5/js/bootstrap.js"></script>
+    	<script type="text/javascript">
+		(function() { 
+			var publish_key = 'pub-c-e898feca-a5e0-44b7-844f-3c82a8282ba9';
+			var subscribe_key = 'sub-c-5bef3f50-9d41-11e5-a5d0-0619f8945a4f';
+			channel = 'channel_3';
+			var username = window.location.search.substring(1).split('=')[1];
+			pubnub =PUBNUB.init({
+				publish_key : publish_key,
+				subscribe_key : subscribe_key,
+				uuid : username
+			});
+
+			pubnub.subscribe({
+				channel : channel,
+				callback : function(message) { 
+				var oldMsg = chatHistory.value;
+					$('#chatHistory')[0].innerHTML = oldMsg + message + "&#13;&#10;"; 
+					document.getElementById("message").value='';
+                    var textScroll = document.getElementById("chatHistory");
+                    chatHistory.scrollTop = chatHistory.scrollHeight;
+				},
+				presence : function(state) { 
+					if (state.action == 'join') {
+						if ($('#userList').text().indexOf(state.uuid) == -1) {
+							$('#userList')[0].innerHTML = state.uuid + '<br>' + $('#userList')[0].innerHTML;
+						}
+					} else if (state.action == 'leave' || state.action == 'timeout') { 
+						var index = $('#userList')[0].innerHTML.indexOf(state.uuid);
+						if ( index !== -1) {
+							$('#userList')[0].innerHTML = 
+								$('#userList')[0].innerHTML.substring(0,index) + 
+								$('#userList')[0].innerHTML.substring(index+state.uuid.length+4);
+						}
+					}
+					
+				}
+			});
+			pubnub.bind('click', pubnub.$('sendButton'), function(e) { 
+				pubnub.publish({
+					channel : channel, 
+					message : pubnub.get_uuid() + ' : '  + $('#message').val() + ' '
+				});
+				$('#message').val('');
+			});
+		})();
+	</script>
+
+	<script type="text/javascript">
+		function leave() { 
+			pubnub.unsubscribe({
+				channel : channel,
+				callback : function() {
+					window.location = 'index.html';
+				}
+			});
+		}
+		
+		function clickSend2() {
+			if (document.getElementById("message").value != '') {
+			document.getElementById("sendButton").click(); }
+		}
+		
+		
+		
+function filter() {
+	if (document.getElementById("message").value != '') {
+        
+        
+        var str = document.getElementById("message").value;
+        var re = new RegExp("fuck", 'gi');
+        var res = str.replace(re, "fluff");
+        document.getElementById("message").value = res;
+        str = document.getElementById("message").value;
+        re = new RegExp("fuk", 'gi');
+        res = str.replace(re, "fluff");
+        document.getElementById("message").value = res;
+        str = document.getElementById("message").value;
+        re = new RegExp("heck", 'gi');
+        res = str.replace(re, "scones");
+        document.getElementById("message").value = res;
+        str = document.getElementById("message").value;
+        re = new RegExp("shit", 'gi');
+        res = str.replace(re, "poop");
+        document.getElementById("message").value = res;
+        str = document.getElementById("message").value;
+        re = new RegExp("stupid", 'gi');
+        res = str.replace(re, "brilliant");
+        document.getElementById("message").value = res;
+        str = document.getElementById("message").value;
+        re = new RegExp("idiot", 'gi');
+        res = str.replace(re, "genius");
+        document.getElementById("message").value = res;
+        str = document.getElementById("message").value;
+        re = new RegExp("bitch", 'gi');
+        res = str.replace(re, "beachball");
+        document.getElementById("message").value = res;
+        str = document.getElementById("message").value;
+        re = new RegExp("whore", 'gi');
+        res = str.replace(re, "lady");
+        document.getElementById("message").value = res;
+        str = document.getElementById("message").value;
+        re = new RegExp("ass", 'gi');
+        res = str.replace(re, "bottom");
+        document.getElementById("message").value = res;
+        str = document.getElementById("message").value;
+        re = new RegExp("douche", 'gi');
+        res = str.replace(re, "peach");
+        document.getElementById("message").value = res;
+        str = document.getElementById("message").value;
+        re = new RegExp("damn", 'gi');
+        res = str.replace(re, "bless");
+        document.getElementById("message").value = res;
+        str = document.getElementById("message").value;
+        re = new RegExp("dumb", 'gi');
+        res = str.replace(re, "smart");
+        document.getElementById("message").value = res;
+        str = document.getElementById("message").value;
+        re = new RegExp("dick", 'gi');
+        res = str.replace(re, "private part");
+        document.getElementById("message").value = res;
+        str = document.getElementById("message").value;
+        re = new RegExp("vagina", 'gi');
+        res = str.replace(re, "private part");
+        document.getElementById("message").value = res;
+        str = document.getElementById("message").value;
+        re = new RegExp("sex", 'gi');
+        res = str.replace(re, "something scary");
+        document.getElementById("message").value = res;
+        str = document.getElementById("message").value;
+        re = new RegExp("penis", 'gi');
+        res = str.replace(re, "private part");
+        document.getElementById("message").value = res;
+        str = document.getElementById("message").value;
+        re = new RegExp("fluffing", 'gi');
+        res = str.replace(re, "kidding");
+        document.getElementById("message").value = res;
+        str = document.getElementById("message").value;
+        re = new RegExp("poopty", 'gi');
+        res = str.replace(re, "poopy");
+        document.getElementById("message").value = res;
+        str = document.getElementById("message").value;
+        re = new RegExp("hate", 'gi');
+        res = str.replace(re, "don't like");
+        document.getElementById("message").value = res;
+        str = document.getElementById("message").value;
+        re = new RegExp("arse", 'gi');
+        res = str.replace(re, "bottom");
+        document.getElementById("message").value = res;
+        str = document.getElementById("message").value;
+        re = new RegExp("butt", 'gi');
+        res = str.replace(re, "bottom");
+        document.getElementById("message").value = res;
+        str = document.getElementById("message").value;
+        re = new RegExp("piss", 'gi');
+        res = str.replace(re, "peepee");
+        document.getElementById("message").value = res;
+        str = document.getElementById("message").value;
+        re = new RegExp("retard", 'gi');
+        res = str.replace(re, "doofus");
+        document.getElementById("message").value = res;
+        str = document.getElementById("message").value;
+        re = new RegExp("cunt", 'gi');
+        res = str.replace(re, "scary stuff");
+        document.getElementById("message").value = res;
+        str = document.getElementById("message").value;
+        re = new RegExp("blowjob", 'gi');
+        res = str.replace(re, "scary stuff");
+        document.getElementById("message").value = res;
+        str = document.getElementById("message").value;
+        re = new RegExp("blow-job", 'gi');
+        res = str.replace(re, "scary stuff");
+        document.getElementById("message").value = res;
+        str = document.getElementById("message").value;
+        re = new RegExp("cock", 'gi');
+        res = str.replace(re, "unspeakable");
+        document.getElementById("message").value = res;
+        str = document.getElementById("message").value;
+        re = new RegExp("tits", 'gi');
+        res = str.replace(re, "pillows");
+        document.getElementById("message").value = res;
+        
+
+	clickSend2();
+	}
+}
+        
+        (function() {
+        pubnub.history({
+     channel: channel,
+     callback: function(m){
+         for(var i=0; i<m[0].length; i++){
+    $('#chatHistory')[0].innerHTML = $('#chatHistory')[0].innerHTML + m[0][i]+ "&#13;&#10;" ; }
+     },
+ });
+        
+    })();
+          </script>
+          
+          </body>
+          </html>

@@ -1,0 +1,38 @@
+@charset "utf-8";
+.navbar.navbar-default.navbar-fixed-top {
+	margin-top: 20px;
+	margin-right: 20px;
+	margin-left: 20px;
+	background-color: #858C8C;
+	color: #FCFCFC;
+	-webkit-box-shadow: 0px 0px #35B191;
+	box-shadow: 0px 0px #35B191;
+}
+.container-fluid .navbar-header .navbar-brand {
+	color: #F7F4F4;
+}
+.nav.navbar-nav.navbar-right li a {
+	color: #F7F3F3;
+}
+
+
+.input-group .input-group-btn .btn.btn-default {
+	-webkit-box-shadow: 0px 0px #054BC9;
+	box-shadow: 0px 0px #054BC9;
+	background-color: #858C8C;
+	color: #FCF7F7;
+	width: 100px;
+}
+
+.container {
+	margin-top: 0px;
+}
+.container .row {
+	margin-top: 20px;
+}
+.col-lg-6 .input-group .input-group-btn {
+}
+.col-lg-6 .input-group .input-group-btn {
+}
+.container-fluid .navbar-header .navbar-brand {
+}
