@@ -3,3 +3,6 @@ A family-friendly chat application that filters out profanity. Utilizes PubNub, 
 
 Long term objective:
 Use a database filter instead of hard-coded Javascript. 
+
+Working demo available at:
+http://akashicrecordsusa.com/profamily2/
